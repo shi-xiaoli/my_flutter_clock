@@ -17,7 +17,8 @@ class NewClockPageState extends State<NewClockPage> with FlareController {
   ActorNode _min_ptr;
   ActorAnimation _numbers;
   double now_seconds = 0.0;
-  List<String> citys;
+  List<String> citys = [];
+  List<double> jetlag = [];
 
   @override
   void initialize(FlutterActorArtboard artboard) {
@@ -26,8 +27,11 @@ class NewClockPageState extends State<NewClockPage> with FlareController {
     _min_ptr = artboard.getNode("Minute");
     var n = new DateTime.now();
     now_seconds = 1.0 * (n.hour * 3600 + n.minute * 60 + n.second);
-    citys = ["伦敦","巴黎", "雅典", "莫斯科", "阿布扎比", "新德里", "缅甸","新加坡",
-      "北京", "东京", "墨尔本", "所罗门群岛", "新西兰惠灵顿"];
+    citys =
+    ["阿布扎比", "阿姆斯特丹", "爱丁堡", "巴黎", "柏林", "北京", "波士顿", "布达佩斯", "布鲁塞尔", "德黑兰",
+        "迪拜", "东京", "多伦多", "华盛顿", "惠灵顿", "开普敦", "伦敦", "曼谷", "墨尔本", "新德里"];
+    jetlag = [-4.0, -6.0, -7.0, -6.0, -6.0, 0.0, -12.0, -6.0, -6.0, -4.5,
+      -4.0, 1.0, -12.0, -12.0, 4.0, -6.0, -7.0, -1.0, 2.0, -2.5];
   }
 
   @override
@@ -58,14 +62,31 @@ class NewClockPageState extends State<NewClockPage> with FlareController {
   Widget _buildZoneList() {
     return new ListView.builder(
       padding: const EdgeInsets.all(16.0),
-      itemCount: 13,
+      itemCount: 21,
       itemBuilder: (context, i) {
-        return _buildRow(citys[i], i-8);
+        if (i==0) {
+          return DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.lightBlueAccent,
+            ),
+            child: Center(
+              child: SizedBox(
+                width: 200.0,
+                height: 200.0,
+                child: CircleAvatar(
+                  child: Text('时区选择'),
+                ),
+              ),
+            ),
+          );
+        }
+        else
+          return _buildRow(citys[i-1], jetlag[i-1], context);
       },
     );
   }
 
-  Widget _buildRow(String city, int i) {
+  Widget _buildRow(String city, double jlag, BuildContext context) {
     return new ListTile(
       title: new Text(
         city,
@@ -74,7 +95,9 @@ class NewClockPageState extends State<NewClockPage> with FlareController {
       onTap: () {
         var now = new DateTime.now();
         now_seconds = 1.0 * (now.hour * 3600 + now.minute * 60 + now.second);
-        setState(() { now_seconds = now_seconds + 1.0*3600*i;});},
+        setState(() { now_seconds = now_seconds + 3600*jlag;});
+        Navigator.pop(context);
+        },
     );
   }
 }
